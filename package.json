@@ -1,0 +1,31 @@
+{
+  "name": "rewind-monad",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run compile && tsc -b && vite build",
+    "preview": "vite preview",
+    "compile": "node scripts/compile.mjs",
+    "test": "npm run compile && node --test test/*.test.mjs",
+    "deploy:testnet": "npm run compile && node --env-file-if-exists=.env scripts/deploy.mjs"
+  },
+  "dependencies": {
+    "ethers": "^6.15.0",
+    "react": "^19.2.7",
+    "react-dom": "^19.2.7"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.8",
+    "@types/react-dom": "^19.1.6",
+    "@vitejs/plugin-react": "^6.0.3",
+    "ganache": "^7.9.2",
+    "solc": "^0.8.30",
+    "typescript": "^5.8.3",
+    "vite": "^8.1.4"
+  },
+  "engines": {
+    "node": ">=22"
+  }
+}
