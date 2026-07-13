@@ -628,6 +628,7 @@ function App() {
         <a className="brand" href="#top"><RewindMark small /><span>rewind</span></a>
         <p>An open experiment for the BuildAnything Spark hackathon.</p>
         <div>
+          <a href="https://github.com/smart-window/rewind-monad" target="_blank" rel="noreferrer">Source code <ArrowUpRightIcon /></a>
           <a href={MONAD_TESTNET.faucetUrl} target="_blank" rel="noreferrer">Get test MON <ArrowUpRightIcon /></a>
           <a href="https://docs.monad.xyz" target="_blank" rel="noreferrer">Monad docs <ArrowUpRightIcon /></a>
         </div>

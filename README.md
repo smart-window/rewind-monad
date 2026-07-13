@@ -2,6 +2,10 @@
 
 **A safety window for crypto transfers on Monad.**
 
+- **Live app:** https://smart-window.github.io/rewind-monad/
+- **Contract:** [`0x1FBFd6D8B06C3258d1Ca664a714303797eb48c87`](https://testnet.monadvision.com/address/0x1FBFd6D8B06C3258d1Ca664a714303797eb48c87)
+- **Repository:** https://github.com/smart-window/rewind-monad
+
 Rewind solves a small, personal problem: the moment of panic after sending crypto and wondering whether the recipient address was correct. Instead of transferring immediately, Rewind holds native MON in a public smart contract for a short period. The sender can cancel while the window is open; afterward, anyone can trigger delivery to the intended recipient.
 
 The product is intentionally narrow. It does one real thing end-to-end and exposes every state transition onchain.
@@ -98,12 +102,12 @@ Run all six behavior and adversarial tests with `npm test`.
 
 Before submitting:
 
-- [ ] Deploy `RewindEscrow` after the hackathon start time.
-- [ ] Add the address to `.env` and the public deployment JSON to Git.
+- [x] Deploy `RewindEscrow` after the hackathon start time.
+- [x] Add the address to `.env` and the public deployment JSON to Git.
 - [ ] Verify the contract source in MonadVision or Monadscan.
 - [ ] Create, cancel, and settle real testnet transfers through the hosted UI.
 - [ ] Confirm explorer links and the recent-transfer feed use the deployed address.
-- [ ] Replace every bracketed field in `SUBMISSION.md`.
+- [x] Replace the available project fields in `SUBMISSION.md`.
 - [ ] Record the demo using the script in `SUBMISSION.md`.
 - [ ] Keep the demo under three minutes and make it publicly viewable.
 

@@ -1,0 +1,9 @@
+{
+  "contract": "RewindEscrow",
+  "address": "0x1FBFd6D8B06C3258d1Ca664a714303797eb48c87",
+  "chainId": 10143,
+  "deployer": "0x35aC07dac5bbAB4d7838DC9e300081b50b23E120",
+  "transactionHash": "0x9c95383f439f504f9b8d2ab3e2474dcf823cb2c4dad34c1ab7c4cd058666219c",
+  "blockNumber": 44597301,
+  "deployedAt": "2026-07-13T16:18:33.021Z"
+}

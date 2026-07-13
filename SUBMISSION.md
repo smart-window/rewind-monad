@@ -20,10 +20,10 @@ Rewind adds a short, transparent safety window to native MON transfers. Funds wa
 
 ## Required links
 
-- Project URL: `[HOSTED_APP_URL]`
-- GitHub repository: `[PUBLIC_GITHUB_URL]`
+- Project URL: `https://smart-window.github.io/rewind-monad/`
+- GitHub repository: `https://github.com/smart-window/rewind-monad`
 - Category: Monad Testnet
-- Contract address: `[DEPLOYED_CONTRACT_ADDRESS]`
+- Contract address: `0x1FBFd6D8B06C3258d1Ca664a714303797eb48c87`
 - Demo video: `[PUBLIC_DEMO_VIDEO_URL]`
 - Social post: `[SOCIAL_POST_URL]`
 
@@ -73,7 +73,7 @@ Narration: “After the deadline, anyone can trigger delivery, but nobody can re
 >
 > No backend. No admin. No fake data. Just one small pause on @monad.
 >
-> [HOSTED_APP_URL]
+> https://smart-window.github.io/rewind-monad/
 >
 > Built for @buildanythingso Spark ✨
 

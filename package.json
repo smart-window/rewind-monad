@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "npm run compile && tsc -b && vite build",
+    "build:pages": "npm run compile && tsc -b && vite build --base=/rewind-monad/",
     "preview": "vite preview",
     "compile": "node scripts/compile.mjs",
     "test": "npm run compile && node --test test/*.test.mjs",
