@@ -30,7 +30,7 @@ jobs:
       - run: npm test
       - run: npm run build:pages
         env:
-          VITE_CONTRACT_ADDRESS: 0x1FBFd6D8B06C3258d1Ca664a714303797eb48c87
+          VITE_CONTRACT_ADDRESS: "0x1FBFd6D8B06C3258d1Ca664a714303797eb48c87"
           VITE_RPC_URL: https://testnet-rpc.monad.xyz
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v4
