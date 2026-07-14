@@ -145,6 +145,7 @@ function App() {
   const [transfers, setTransfers] = useState<RewindTransfer[]>([]);
   const [contractReady, setContractReady] = useState(false);
   const [loadingFeed, setLoadingFeed] = useState(true);
+  const [feedError, setFeedError] = useState(false);
   const [busy, setBusy] = useState<string | null>(null);
   const [notice, setNotice] = useState<Notice | null>(null);
   const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
@@ -155,6 +156,7 @@ function App() {
   const refreshTransfers = useCallback(async () => {
     if (!HAS_CONTRACT_ADDRESS) {
       setContractReady(false);
+      setFeedError(false);
       setLoadingFeed(false);
       return;
     }
@@ -163,6 +165,7 @@ function App() {
       const code = await readProvider.getCode(CONTRACT_ADDRESS);
       if (code === "0x") {
         setContractReady(false);
+        setFeedError(false);
         setLoadingFeed(false);
         return;
       }
@@ -190,8 +193,9 @@ function App() {
       );
       setTransfers(loaded);
       setBlockNumber(await readProvider.getBlockNumber());
+      setFeedError(false);
     } catch {
-      setContractReady(false);
+      setFeedError(true);
     } finally {
       setLoadingFeed(false);
     }
@@ -276,8 +280,10 @@ function App() {
     if (!contractReady) {
       setNotice({
         tone: "error",
-        title: "Contract is not live",
-        message: "The Rewind contract has not been deployed at this address yet.",
+        title: feedError ? "Monad is temporarily unavailable" : "Contract is not live",
+        message: feedError
+          ? "Rewind could not confirm the live contract. Retry when the network reconnects."
+          : "The Rewind contract has not been deployed at this address yet.",
       });
       return;
     }
@@ -429,7 +435,24 @@ function App() {
                 <RewindMark />
               </div>
 
-              {!contractReady && !loadingFeed && (
+              {feedError && !loadingFeed ? (
+                <div className="setup-banner">
+                  <span className="setup-banner__dot" />
+                  <div>
+                    <strong>Monad connection interrupted</strong>
+                    <p>Live state could not refresh. Rewind will keep retrying automatically.</p>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setLoadingFeed(true);
+                      void refreshTransfers();
+                    }}
+                  >
+                    Retry now
+                  </button>
+                </div>
+              ) : !contractReady && !loadingFeed ? (
                 <div className="setup-banner">
                   <span className="setup-banner__dot" />
                   <div>
@@ -437,7 +460,7 @@ function App() {
                     <p>Add the deployed contract address to enable real transfers.</p>
                   </div>
                 </div>
-              )}
+              ) : null}
 
               <label>
                 <span>Recipient</span>
@@ -559,7 +582,9 @@ function App() {
               <span className="kicker">Live contract state</span>
               <h2>Recent protected transfers</h2>
             </div>
-            <div className="network-pill"><span /> Monad Testnet {blockNumber ? `· #${blockNumber.toLocaleString()}` : ""}</div>
+            <div className={`network-pill${feedError ? " network-pill--warning" : ""}`}>
+              <span /> {feedError ? "RPC reconnecting" : `Monad Testnet${blockNumber ? ` · #${blockNumber.toLocaleString()}` : ""}`}
+            </div>
           </div>
 
           <div className="stat-row">
@@ -571,6 +596,22 @@ function App() {
           <div className="transfer-list">
             {loadingFeed ? (
               <div className="empty-state"><span className="loader" /><h3>Reading Monad…</h3></div>
+            ) : feedError && transfers.length === 0 ? (
+              <div className="empty-state">
+                <RewindMark />
+                <h3>Monad is taking a breath</h3>
+                <p>The live contract could not be reached. Rewind will retry automatically without inventing placeholder data.</p>
+                <button
+                  className="empty-state__button"
+                  type="button"
+                  onClick={() => {
+                    setLoadingFeed(true);
+                    void refreshTransfers();
+                  }}
+                >
+                  Retry now
+                </button>
+              </div>
             ) : transfers.length === 0 ? (
               <div className="empty-state">
                 <RewindMark />
@@ -615,7 +656,11 @@ function App() {
               })
             )}
           </div>
-          <p className="live-footnote">Showing up to 12 latest transfers, read directly from contract storage.</p>
+          <p className="live-footnote">
+            {feedError && transfers.length > 0
+              ? "Showing the last confirmed contract state while Monad reconnects."
+              : "Showing up to 12 latest transfers, read directly from contract storage."}
+          </p>
         </section>
 
         <section className="closing-section">
