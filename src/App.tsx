@@ -476,6 +476,7 @@ function App() {
                       className={delay === item.value ? "active" : ""}
                       type="button"
                       key={item.value}
+                      aria-pressed={delay === item.value}
                       onClick={() => setDelay(item.value)}
                     >
                       {item.label}
@@ -500,7 +501,11 @@ function App() {
         </section>
 
         {notice && (
-          <aside className={`notice notice--${notice.tone}`} role="status">
+          <aside
+            className={`notice notice--${notice.tone}`}
+            role={notice.tone === "error" ? "alert" : "status"}
+            aria-live={notice.tone === "error" ? "assertive" : "polite"}
+          >
             <div className="notice-icon">{notice.tone === "success" ? "✓" : notice.tone === "error" ? "!" : "…"}</div>
             <div>
               <strong>{notice.title}</strong>
