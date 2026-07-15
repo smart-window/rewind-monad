@@ -213,12 +213,17 @@ function App() {
   }, []);
 
   useEffect(() => {
-    refreshTransfers();
-    const feedInterval = window.setInterval(refreshTransfers, 15_000);
+    void refreshTransfers();
+    const refreshWhenVisible = () => {
+      if (document.visibilityState === "visible") void refreshTransfers();
+    };
+    const feedInterval = window.setInterval(refreshWhenVisible, 15_000);
     const clockInterval = window.setInterval(() => setNow(Math.floor(Date.now() / 1000)), 1_000);
+    document.addEventListener("visibilitychange", refreshWhenVisible);
     return () => {
       window.clearInterval(feedInterval);
       window.clearInterval(clockInterval);
+      document.removeEventListener("visibilitychange", refreshWhenVisible);
     };
   }, [refreshTransfers]);
 
