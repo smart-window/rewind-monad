@@ -209,7 +209,7 @@ function App() {
       : ((await browserProvider.send("eth_accounts", [])) as string[]);
     const nextAccount = accounts[0] ?? "";
     setAccount(nextAccount);
-    setBalance(nextAccount ? await browserProvider.getBalance(nextAccount) : 0n);
+    setBalance(nextAccount ? await readProvider.getBalance(nextAccount) : 0n);
   }, []);
 
   useEffect(() => {
@@ -315,6 +315,14 @@ function App() {
       if (value <= 0n) throw new Error("Zero amount");
     } catch {
       setNotice({ tone: "error", title: "Check the amount", message: "Enter an amount greater than zero." });
+      return;
+    }
+    if (value >= balance) {
+      setNotice({
+        tone: "error",
+        title: "Not enough MON",
+        message: "Lower the amount so your wallet keeps enough MON to pay network gas.",
+      });
       return;
     }
 
