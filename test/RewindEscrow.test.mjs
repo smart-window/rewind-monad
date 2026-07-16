@@ -3,6 +3,7 @@ import { after, before, beforeEach, describe, it } from "node:test";
 import fs from "node:fs";
 import path from "node:path";
 import ganache from "ganache";
+import solc from "solc";
 import {
   BrowserProvider,
   ContractFactory,
@@ -12,6 +13,32 @@ import {
 const artifact = JSON.parse(
   fs.readFileSync(path.join(process.cwd(), "artifacts", "RewindEscrow.json"), "utf8"),
 );
+
+const rejectingRecipientSource = `
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.30;
+
+contract RejectingRecipient {
+    receive() external payable {
+        revert("MON rejected");
+    }
+}
+`;
+
+const helperCompilation = JSON.parse(
+  solc.compile(
+    JSON.stringify({
+      language: "Solidity",
+      sources: { "RejectingRecipient.sol": { content: rejectingRecipientSource } },
+      settings: {
+        evmVersion: "shanghai",
+        outputSelection: { "*": { "*": ["abi", "evm.bytecode.object"] } },
+      },
+    }),
+  ),
+);
+const rejectingRecipientArtifact =
+  helperCompilation.contracts["RejectingRecipient.sol"].RejectingRecipient;
 
 describe("RewindEscrow", () => {
   let chain;
@@ -139,5 +166,28 @@ describe("RewindEscrow", () => {
     await assertTxReverts(
       sender.sendTransaction({ to: await contract.getAddress(), value: parseEther("0.1") }),
     );
+  });
+
+  it("keeps a transfer pending and funded when its recipient rejects the payout", async () => {
+    const rejectingFactory = new ContractFactory(
+      rejectingRecipientArtifact.abi,
+      `0x${rejectingRecipientArtifact.evm.bytecode.object}`,
+      sender,
+    );
+    const rejectingRecipient = await rejectingFactory.deploy();
+    await rejectingRecipient.waitForDeployment();
+
+    await (
+      await contract.createTransfer(await rejectingRecipient.getAddress(), 30, {
+        value: parseEther("1"),
+      })
+    ).wait();
+    await advanceTime(31);
+
+    await assertTxReverts(contract.releaseTransfer(1n, { gasLimit: 300_000 }));
+
+    const transfer = await contract.getTransfer(1n);
+    assert.equal(transfer.status, 0n);
+    assert.equal(await provider.getBalance(await contract.getAddress()), parseEther("1"));
   });
 });

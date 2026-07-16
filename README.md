@@ -96,7 +96,7 @@ Deploy the generated `dist/` directory to Vercel, Netlify, Cloudflare Pages, or 
 - Direct native-token payments revert, preventing untracked balances.
 - A transfer cannot be cancelled or released twice.
 
-Run all six behavior and adversarial tests with `npm test`.
+Run all seven behavior and adversarial tests with `npm test`.
 
 ## Verification checklist
 
