@@ -690,11 +690,16 @@ function App() {
               })
             )}
           </div>
-          <p className="live-footnote">
-            {feedError && transfers.length > 0
-              ? "Showing the last confirmed contract state while Monad reconnects."
-              : "Showing up to 12 latest transfers, read directly from contract storage."}
-          </p>
+          <div className="live-footnote">
+            <span>
+              {feedError && transfers.length > 0
+                ? "Showing the last confirmed contract state while Monad reconnects."
+                : "Showing up to 12 latest transfers, read directly from contract storage."}
+            </span>
+            <a href={contractExplorerUrl} target="_blank" rel="noreferrer">
+              Contract {shortAddress(CONTRACT_ADDRESS)} <ArrowUpRightIcon />
+            </a>
+          </div>
         </section>
 
         <section className="closing-section">

@@ -193,7 +193,9 @@ h1, h2, h3, p { margin-top: 0; }
 .empty-state__button { border: 0; border-bottom: 1px solid currentColor; background: transparent; padding: 3px 0; color: var(--acid); font-size: 11px; font-weight: 900; cursor: pointer; }
 .loader { width: 30px; height: 30px; border-radius: 50%; border: 3px solid #444; border-top-color: var(--acid); animation: spin .8s linear infinite; margin-bottom: 15px; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.live-footnote { text-align: right; color: #696c63; font-size: 9px; margin: 12px 0 0; }
+.live-footnote { display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px 18px; color: #696c63; font-size: 9px; margin: 12px 0 0; }
+.live-footnote a { display: inline-flex; align-items: center; gap: 4px; color: #a9aca2; font-size: 10px; font-weight: 800; text-decoration: none; }
+.live-footnote a:hover { color: var(--acid); }
 
 .closing-section { padding: 120px 28px; display: grid; grid-template-columns: .45fr 1.2fr auto; gap: 50px; align-items: center; }
 .closing-mark { width: 150px; height: 150px; border-radius: 50%; background: var(--acid); display: grid; place-items: center; border: 1.5px solid var(--ink); position: relative; box-shadow: 7px 7px 0 var(--ink); }
