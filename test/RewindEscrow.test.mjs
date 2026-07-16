@@ -190,4 +190,25 @@ describe("RewindEscrow", () => {
     assert.equal(transfer.status, 0n);
     assert.equal(await provider.getBalance(await contract.getAddress()), parseEther("1"));
   });
+
+  it("keeps escrow accounting exact across delivered, rewound, and pending transfers", async () => {
+    const recipientAddress = await recipient.getAddress();
+    for (const [value, delay] of [["1", 30], ["2", 90], ["3", 120]]) {
+      await (
+        await contract.createTransfer(recipientAddress, delay, {
+          value: parseEther(value),
+        })
+      ).wait();
+    }
+
+    await (await contract.cancelTransfer(2n)).wait();
+    await advanceTime(31);
+    await (await contract.releaseTransfer(1n)).wait();
+
+    assert.equal((await contract.getTransfer(1n)).status, 1n);
+    assert.equal((await contract.getTransfer(2n)).status, 2n);
+    assert.equal((await contract.getTransfer(3n)).status, 0n);
+    assert.equal(await contract.nextTransferId(), 4n);
+    assert.equal(await provider.getBalance(await contract.getAddress()), parseEther("3"));
+  });
 });
