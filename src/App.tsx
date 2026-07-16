@@ -138,7 +138,7 @@ async function switchToMonad() {
 
 function App() {
   const [account, setAccount] = useState("");
-  const [balance, setBalance] = useState<bigint>(0n);
+  const [balance, setBalance] = useState<bigint | null>(null);
   const [recipient, setRecipient] = useState("");
   const [amount, setAmount] = useState("");
   const [delay, setDelay] = useState<number>(300);
@@ -203,13 +203,28 @@ function App() {
 
   const refreshWallet = useCallback(async (requestedAccount?: string) => {
     if (!window.ethereum) return;
-    const browserProvider = new BrowserProvider(window.ethereum as Eip1193Provider);
-    const accounts = requestedAccount
-      ? [requestedAccount]
-      : ((await browserProvider.send("eth_accounts", [])) as string[]);
-    const nextAccount = accounts[0] ?? "";
-    setAccount(nextAccount);
-    setBalance(nextAccount ? await readProvider.getBalance(nextAccount) : 0n);
+    try {
+      const browserProvider = new BrowserProvider(window.ethereum as Eip1193Provider);
+      const accounts =
+        requestedAccount !== undefined
+          ? requestedAccount
+            ? [requestedAccount]
+            : []
+          : ((await browserProvider.send("eth_accounts", [])) as string[]);
+      const nextAccount = accounts[0] ?? "";
+      setAccount(nextAccount);
+      setBalance(null);
+      if (!nextAccount) return;
+
+      try {
+        setBalance(await readProvider.getBalance(nextAccount));
+      } catch {
+        setBalance(null);
+      }
+    } catch {
+      setAccount("");
+      setBalance(null);
+    }
   }, []);
 
   useEffect(() => {
@@ -228,12 +243,12 @@ function App() {
   }, [refreshTransfers]);
 
   useEffect(() => {
-    refreshWallet();
+    void refreshWallet();
     const handleAccounts = (...args: unknown[]) => {
       const accounts = args[0] as string[];
-      refreshWallet(accounts?.[0] ?? "");
+      void refreshWallet(accounts?.[0] ?? "");
     };
-    const handleChain = () => refreshWallet();
+    const handleChain = () => void refreshWallet();
     window.ethereum?.on?.("accountsChanged", handleAccounts);
     window.ethereum?.on?.("chainChanged", handleChain);
     return () => {
@@ -317,7 +332,7 @@ function App() {
       setNotice({ tone: "error", title: "Check the amount", message: "Enter an amount greater than zero." });
       return;
     }
-    if (value >= balance) {
+    if (balance !== null && value >= balance) {
       setNotice({
         tone: "error",
         title: "Not enough MON",
@@ -501,7 +516,13 @@ function App() {
                   />
                   <strong>MON</strong>
                 </div>
-                <small>{account ? `${cleanAmount(balance)} MON available` : "Connect a wallet to see your balance"}</small>
+                <small>
+                  {account
+                    ? balance === null
+                      ? "Monad balance unavailable · your wallet will verify"
+                      : `${cleanAmount(balance)} MON available`
+                    : "Connect a wallet to see your balance"}
+                </small>
               </label>
 
               <fieldset>
