@@ -7,6 +7,7 @@ import {
   formatEther,
   getAddress,
   isAddress,
+  isError,
   parseEther,
 } from "ethers";
 import {
@@ -98,6 +99,9 @@ function remainingTime(releaseAt: number, now: number) {
 }
 
 function friendlyError(error: unknown) {
+  if (isError(error, "TRANSACTION_REPLACED") && error.cancelled) {
+    return "The pending transaction was cancelled in your wallet.";
+  }
   if (!(error instanceof Error)) return "Something went wrong. Please try again.";
   const message = error.message;
   if (message.includes("user rejected") || message.includes("ACTION_REJECTED")) {
@@ -109,6 +113,19 @@ function friendlyError(error: unknown) {
   if (message.includes("SafetyWindowOpen")) return "This transfer is still inside its safety window.";
   if (message.includes("SafetyWindowClosed")) return "The safety window has already closed.";
   return "The transaction could not be completed. Check your wallet and try again.";
+}
+
+async function waitForConfirmedHash(transaction: {
+  wait: () => Promise<ContractTransactionReceipt | null>;
+}) {
+  try {
+    const receipt = await transaction.wait();
+    if (!receipt) throw new Error("Transaction confirmation unavailable");
+    return receipt.hash;
+  } catch (error) {
+    if (isError(error, "TRANSACTION_REPLACED") && !error.cancelled) return error.receipt.hash;
+    throw error;
+  }
 }
 
 async function switchToMonad() {
@@ -351,14 +368,14 @@ function App() {
         message: "Your transaction is being confirmed on Monad.",
         hash: transaction.hash,
       });
-      const receipt = (await transaction.wait()) as ContractTransactionReceipt;
+      const confirmedHash = await waitForConfirmedHash(transaction);
       setAmount("");
       setRecipient("");
       setNotice({
         tone: "success",
         title: "Transfer protected",
         message: `You have ${DELAYS.find((item) => item.value === delay)?.label ?? "time"} to change your mind.`,
-        hash: receipt.hash,
+        hash: confirmedHash,
       });
       await Promise.all([refreshTransfers(), refreshWallet(account)]);
       document.querySelector("#live")?.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -387,7 +404,7 @@ function App() {
         message: "Waiting for Monad to confirm the transaction.",
         hash: transaction.hash,
       });
-      const receipt = (await transaction.wait()) as ContractTransactionReceipt;
+      const confirmedHash = await waitForConfirmedHash(transaction);
       setNotice({
         tone: "success",
         title: action === "cancel" ? "Transfer rewound" : "Transfer settled",
@@ -395,7 +412,7 @@ function App() {
           action === "cancel"
             ? "The escrowed MON has been returned to the sender."
             : "The escrowed MON has reached its recipient.",
-        hash: receipt.hash,
+        hash: confirmedHash,
       });
       await Promise.all([refreshTransfers(), refreshWallet(account)]);
     } catch (error) {
