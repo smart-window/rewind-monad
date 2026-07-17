@@ -425,7 +425,7 @@ function App() {
             </a>
           )}
         </nav>
-        <button className="wallet-button" type="button" onClick={connectWallet} disabled={busy === "connect"}>
+        <button className="wallet-button" type="button" onClick={connectWallet} disabled={busy !== null}>
           <WalletIcon />
           {account ? shortAddress(account) : busy === "connect" ? "Connecting…" : "Connect wallet"}
         </button>
@@ -548,7 +548,7 @@ function App() {
                 <div><span className="route-node route-node--end">TO</span><small>After {DELAYS.find((item) => item.value === delay)?.label}</small></div>
               </div>
 
-              <button className="primary-action" type="submit" disabled={busy === "create" || loadingFeed}>
+              <button className="primary-action" type="submit" disabled={busy !== null || loadingFeed}>
                 {busy === "create" ? "Protecting transfer…" : account ? "Send with Rewind" : "Connect wallet to send"}
                 <span>↗</span>
               </button>
@@ -674,12 +674,12 @@ function App() {
                     <div className="countdown"><small>{windowOpen ? "Time to rewind" : "Settlement"}</small><strong>{windowOpen ? remainingTime(transfer.releaseAt, now) : transfer.status === 0 ? "Available" : "Complete"}</strong></div>
                     <div className="transfer-action">
                       {windowOpen && isSender && (
-                        <button type="button" onClick={() => actOnTransfer(transfer, "cancel")} disabled={busy === `cancel-${transfer.id}`}>
+                        <button type="button" onClick={() => actOnTransfer(transfer, "cancel")} disabled={busy !== null}>
                           {busy === `cancel-${transfer.id}` ? "Rewinding…" : "Rewind"}
                         </button>
                       )}
                       {!windowOpen && isPending && (
-                        <button type="button" onClick={() => actOnTransfer(transfer, "release")} disabled={busy === `release-${transfer.id}`}>
+                        <button type="button" onClick={() => actOnTransfer(transfer, "release")} disabled={busy !== null}>
                           {busy === `release-${transfer.id}` ? "Settling…" : "Settle"}
                         </button>
                       )}
