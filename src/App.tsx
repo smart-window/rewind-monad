@@ -1,4 +1,4 @@
-import { FormEvent, useCallback, useEffect, useMemo, useState } from "react";
+import { FormEvent, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   BrowserProvider,
   Contract,
@@ -167,6 +167,7 @@ function App() {
   const [notice, setNotice] = useState<Notice | null>(null);
   const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
   const [blockNumber, setBlockNumber] = useState<number | null>(null);
+  const chainTimeOffset = useRef(0);
 
   const contractExplorerUrl = `${MONAD_TESTNET.explorerUrl}/address/${CONTRACT_ADDRESS}`;
 
@@ -209,7 +210,13 @@ function App() {
         }),
       );
       setTransfers(loaded);
-      setBlockNumber(await readProvider.getBlockNumber());
+      const latestBlock = await readProvider.getBlock("latest");
+      if (latestBlock) {
+        const chainNow = Number(latestBlock.timestamp);
+        chainTimeOffset.current = chainNow - Math.floor(Date.now() / 1000);
+        setNow(chainNow);
+        setBlockNumber(latestBlock.number);
+      }
       setFeedError(false);
     } catch {
       setFeedError(true);
@@ -250,7 +257,10 @@ function App() {
       if (document.visibilityState === "visible") void refreshTransfers();
     };
     const feedInterval = window.setInterval(refreshWhenVisible, 15_000);
-    const clockInterval = window.setInterval(() => setNow(Math.floor(Date.now() / 1000)), 1_000);
+    const clockInterval = window.setInterval(
+      () => setNow(Math.floor(Date.now() / 1000) + chainTimeOffset.current),
+      1_000,
+    );
     document.addEventListener("visibilitychange", refreshWhenVisible);
     return () => {
       window.clearInterval(feedInterval);
