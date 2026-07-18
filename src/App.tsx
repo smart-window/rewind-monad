@@ -388,7 +388,7 @@ function App() {
         message: `You have ${DELAYS.find((item) => item.value === delay)?.label ?? "time"} to change your mind.`,
         hash: confirmedHash,
       });
-      await Promise.all([refreshTransfers(), refreshWallet(account)]);
+      await Promise.all([refreshTransfers(), refreshWallet()]);
       document.querySelector("#live")?.scrollIntoView({ behavior: "smooth", block: "start" });
     } catch (error) {
       setNotice({ tone: "error", title: "Transfer not created", message: friendlyError(error) });
@@ -425,7 +425,7 @@ function App() {
             : "The escrowed MON has reached its recipient.",
         hash: confirmedHash,
       });
-      await Promise.all([refreshTransfers(), refreshWallet(account)]);
+      await Promise.all([refreshTransfers(), refreshWallet()]);
     } catch (error) {
       setNotice({
         tone: "error",
