@@ -688,12 +688,30 @@ function App() {
                 const isSender = account.toLowerCase() === transfer.sender.toLowerCase();
                 const statusLabel = transfer.status === 1 ? "Delivered" : transfer.status === 2 ? "Rewound" : windowOpen ? "Protected" : "Ready";
                 return (
-                  <article className="transfer-row" key={transfer.id.toString()}>
+                  <article
+                    className="transfer-row"
+                    key={transfer.id.toString()}
+                    aria-label={`Transfer ${transfer.id.toString()}: ${cleanAmount(transfer.amount)} MON, ${statusLabel}`}
+                  >
                     <div className="transfer-id"><span>#{transfer.id.toString()}</span><small>Transfer</small></div>
                     <div className="transfer-route">
-                      <a href={`${MONAD_TESTNET.explorerUrl}/address/${transfer.sender}`} target="_blank" rel="noreferrer">{shortAddress(transfer.sender)}</a>
-                      <span className="mini-route"><i /><b>→</b><i /></span>
-                      <a href={`${MONAD_TESTNET.explorerUrl}/address/${transfer.recipient}`} target="_blank" rel="noreferrer">{shortAddress(transfer.recipient)}</a>
+                      <a
+                        href={`${MONAD_TESTNET.explorerUrl}/address/${transfer.sender}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label={`View sender ${transfer.sender} on MonadVision`}
+                      >
+                        {shortAddress(transfer.sender)}
+                      </a>
+                      <span className="mini-route" aria-hidden="true"><i /><b>→</b><i /></span>
+                      <a
+                        href={`${MONAD_TESTNET.explorerUrl}/address/${transfer.recipient}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label={`View recipient ${transfer.recipient} on MonadVision`}
+                      >
+                        {shortAddress(transfer.recipient)}
+                      </a>
                     </div>
                     <div className="transfer-amount"><strong>{cleanAmount(transfer.amount)}</strong><small>MON</small></div>
                     <div className={`status status--${transfer.status === 2 ? "cancelled" : transfer.status === 1 ? "released" : "pending"}`}>
