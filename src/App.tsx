@@ -168,10 +168,12 @@ function App() {
   const [now, setNow] = useState(() => Math.floor(Date.now() / 1000));
   const [blockNumber, setBlockNumber] = useState<number | null>(null);
   const chainTimeOffset = useRef(0);
+  const transferRefreshId = useRef(0);
 
   const contractExplorerUrl = `${MONAD_TESTNET.explorerUrl}/address/${CONTRACT_ADDRESS}`;
 
   const refreshTransfers = useCallback(async () => {
+    const refreshId = ++transferRefreshId.current;
     if (!HAS_CONTRACT_ADDRESS) {
       setContractReady(false);
       setFeedError(false);
@@ -181,14 +183,13 @@ function App() {
 
     try {
       const code = await readProvider.getCode(CONTRACT_ADDRESS);
+      if (refreshId !== transferRefreshId.current) return;
       if (code === "0x") {
         setContractReady(false);
         setFeedError(false);
-        setLoadingFeed(false);
         return;
       }
 
-      setContractReady(true);
       const readContract = new Contract(CONTRACT_ADDRESS, REWIND_ABI, readProvider);
       const nextId = (await readContract.nextTransferId()) as bigint;
       const newestId = nextId - 1n;
@@ -209,8 +210,11 @@ function App() {
           } satisfies RewindTransfer;
         }),
       );
-      setTransfers(loaded);
       const latestBlock = await readProvider.getBlock("latest");
+      if (refreshId !== transferRefreshId.current) return;
+
+      setContractReady(true);
+      setTransfers(loaded);
       if (latestBlock) {
         const chainNow = Number(latestBlock.timestamp);
         chainTimeOffset.current = chainNow - Math.floor(Date.now() / 1000);
@@ -219,9 +223,9 @@ function App() {
       }
       setFeedError(false);
     } catch {
-      setFeedError(true);
+      if (refreshId === transferRefreshId.current) setFeedError(true);
     } finally {
-      setLoadingFeed(false);
+      if (refreshId === transferRefreshId.current) setLoadingFeed(false);
     }
   }, []);
 
