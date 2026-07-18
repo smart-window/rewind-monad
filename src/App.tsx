@@ -338,11 +338,12 @@ function App() {
       await connectWallet();
       return;
     }
-    if (!isAddress(recipient)) {
+    const normalizedRecipient = recipient.trim();
+    if (!isAddress(normalizedRecipient)) {
       setNotice({ tone: "error", title: "Check the recipient", message: "Enter a valid EVM address." });
       return;
     }
-    if (getAddress(recipient) === getAddress(account)) {
+    if (getAddress(normalizedRecipient) === getAddress(account)) {
       setNotice({
         tone: "error",
         title: "That is your wallet",
@@ -371,7 +372,7 @@ function App() {
     try {
       setBusy("create");
       const contract = await signerContract();
-      const transaction = await contract.createTransfer(getAddress(recipient), delay, { value });
+      const transaction = await contract.createTransfer(getAddress(normalizedRecipient), delay, { value });
       setNotice({
         tone: "info",
         title: "Opening your safety window",
