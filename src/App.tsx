@@ -384,8 +384,8 @@ function App() {
         hash: transaction.hash,
       });
       const confirmedHash = await waitForConfirmedHash(transaction);
-      setAmount("");
-      setRecipient("");
+      setAmount((currentAmount) => currentAmount === amount ? "" : currentAmount);
+      setRecipient((currentRecipient) => currentRecipient.trim() === normalizedRecipient ? "" : currentRecipient);
       setNotice({
         tone: "success",
         title: "Transfer protected",
