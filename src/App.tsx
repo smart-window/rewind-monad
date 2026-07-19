@@ -724,12 +724,22 @@ function App() {
                     <div className="countdown"><small>{windowOpen ? "Time to rewind" : "Settlement"}</small><strong>{windowOpen ? remainingTime(transfer.releaseAt, now) : transfer.status === 0 ? "Available" : "Complete"}</strong></div>
                     <div className="transfer-action">
                       {windowOpen && isSender && (
-                        <button type="button" onClick={() => actOnTransfer(transfer, "cancel")} disabled={busy !== null}>
+                        <button
+                          type="button"
+                          onClick={() => actOnTransfer(transfer, "cancel")}
+                          disabled={busy !== null}
+                          aria-label={`${busy === `cancel-${transfer.id}` ? "Rewinding" : "Rewind"} transfer ${transfer.id.toString()}`}
+                        >
                           {busy === `cancel-${transfer.id}` ? "Rewinding…" : "Rewind"}
                         </button>
                       )}
                       {!windowOpen && isPending && (
-                        <button type="button" onClick={() => actOnTransfer(transfer, "release")} disabled={busy !== null}>
+                        <button
+                          type="button"
+                          onClick={() => actOnTransfer(transfer, "release")}
+                          disabled={busy !== null}
+                          aria-label={`${busy === `release-${transfer.id}` ? "Settling" : "Settle"} transfer ${transfer.id.toString()}`}
+                        >
                           {busy === `release-${transfer.id}` ? "Settling…" : "Settle"}
                         </button>
                       )}
