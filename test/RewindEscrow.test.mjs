@@ -121,8 +121,15 @@ describe("RewindEscrow", () => {
       contract.createTransfer(await recipient.getAddress(), 29, { value: parseEther("1") }),
     );
     await assertTxReverts(
+      contract.createTransfer(await recipient.getAddress(), 30 * 24 * 60 * 60 + 1, {
+        value: parseEther("1"),
+      }),
+    );
+    await assertTxReverts(
       contract.createTransfer(await recipient.getAddress(), 60, { value: 0 }),
     );
+    assert.equal(await contract.nextTransferId(), 1n);
+    assert.equal(await provider.getBalance(await contract.getAddress()), 0n);
   });
 
   it("lets only the sender cancel while the safety window is open", async () => {
