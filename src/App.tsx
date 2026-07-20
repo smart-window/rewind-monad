@@ -457,7 +457,14 @@ function App() {
             </a>
           )}
         </nav>
-        <button className="wallet-button" type="button" onClick={connectWallet} disabled={busy !== null}>
+        <button
+          className="wallet-button"
+          type="button"
+          onClick={connectWallet}
+          disabled={busy !== null}
+          aria-label={account ? `Connected wallet ${account}` : busy === "connect" ? "Connecting wallet" : "Connect wallet"}
+          title={account || undefined}
+        >
           <WalletIcon />
           {account ? shortAddress(account) : busy === "connect" ? "Connecting…" : "Connect wallet"}
         </button>
